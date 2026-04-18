@@ -74,11 +74,10 @@ jobs:
           ndk-version: ${{ env.NDK_VERSION }}
           build-tools-version: 34.0.0
       
-      # Step 9: Configure Gradle
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+      # Step 9: Note: Gradle is managed by Lime/OpenFL, no direct setup needed
+      # (Removing gradle/actions/setup-gradle@v3 as it requires gradle files not in Haxe projects)
       
-      # Step 10: Setup Lime for Android builds
+      # Step 9: Setup Lime for Android builds
       - name: Setup Lime
         run: |
           echo "Setting up Lime for Android..."
@@ -87,21 +86,21 @@ jobs:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
       
-      # Step 11: Build debug APK
+      # Step 10: Build debug APK
       - name: Build Debug APK
         run: lime test android
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
       
-      # Step 12: Build release APK
+      # Step 11: Build release APK
       - name: Build Release APK
         run: lime build android -release
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
       
-      # Step 13: Verify APK was built successfully
+      # Step 12: Verify APK was built successfully
       - name: Verify APK files
         run: |
           echo "Checking debug APK..."
@@ -110,7 +109,7 @@ jobs:
           echo "Checking release APK..."
           ls -lh export/release/bin/NightmareVision-release.apk || echo "Release APK not found"
       
-      # Step 14: Get APK file size for monitoring
+      # Step 13: Get APK file size for monitoring
       - name: Check APK sizes
         run: |
           if [ -f "export/debug/bin/NightmareVision-debug.apk" ]; then
@@ -123,7 +122,7 @@ jobs:
             echo "Release APK size: $RELEASE_SIZE"
           fi
       
-      # Step 15: Upload debug APK as artifact
+      # Step 14: Upload debug APK as artifact
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         if: success()
@@ -133,7 +132,7 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
       
-      # Step 16: Upload release APK as artifact
+      # Step 15: Upload release APK as artifact
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         if: success()
@@ -143,7 +142,7 @@ jobs:
           retention-days: 60
           if-no-files-found: warn
       
-      # Step 17: Create release with APKs (only on version tags)
+      # Step 16: Create release with APKs (only on version tags)
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
@@ -156,7 +155,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      # Step 18: Notify on failure
+      # Step 17: Notify on failure
       - name: Build failure notification
         if: failure()
         run: |
